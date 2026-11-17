@@ -74,7 +74,7 @@ func _compute() -> void:
 	grip = float(hd.get("grip", 1.0)) * (1.0 + K.UPG_TIRES_GRIP * lt)
 	var susp_q := float(hd.get("suspension", 1.0))
 	damping_ratio = clampf(0.30 + 0.12 * susp_q + K.UPG_SUSP_DAMP * ls, 0.25, 0.95)
-	travel = float(hd.get("travel", 0.25)) * (1.0 + K.UPG_SUSP_TRAVEL * ls)
+	travel = maxf(float(hd.get("travel", 0.25)), 0.1) * (1.0 + K.UPG_SUSP_TRAVEL * ls)
 	landing_stab = susp_q * 0.5 + K.UPG_SUSP_LANDING * ls * 4.0
 	air_alpha = 7.5 * float(hd.get("air_control", 1.0))
 	air_spin_max = 5.0 + 1.0 * float(hd.get("air_control", 1.0))

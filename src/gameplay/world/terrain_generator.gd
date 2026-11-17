@@ -154,6 +154,10 @@ func _gen_segment() -> void:
 	var d := difficulty(x0)
 	var amp := lerpf(float(tp.get("amp", 2.5)), float(tp.get("amp_max", 7.0)), d)
 	var max_slope := lerpf(float(tp.get("max_slope", 0.55)), float(tp.get("max_slope_late", 0.85)), d)
+	# Warm-up: the first ~220 m of every map are gentle so any car can get going.
+	var warm := clampf((x0 - 30.0) / 190.0, 0.0, 1.0)
+	amp *= lerpf(0.45, 1.0, warm)
+	max_slope = minf(max_slope, lerpf(0.36, max_slope, warm))
 	var weights: Dictionary = tp.get("features", {"hills": 1.0})
 	var kind := _pick(weights, d)
 	# surface patch decision for this segment
@@ -170,7 +174,7 @@ func _gen_segment() -> void:
 			var bamp := lerpf(0.25, 0.6, d) * float(tp.get("bump_scale", 1.0))
 			for i in nb:
 				var up := (i % 2 == 0)
-				_hermite(_rf(1.6, 2.6), _y() + (bamp if up else -bamp) * _rf(0.6, 1.0), 0.0, s, max_slope * 1.2)
+				_hermite(_rf(1.8, 2.8), _y() + (bamp if up else -bamp) * _rf(0.6, 1.0), 0.0, s, max_slope * 1.1)
 			_hermite(4.0, _y(), 0.0, s, max_slope)
 		"jump":
 			_jump(d, max_slope)
@@ -192,8 +196,8 @@ func _gen_segment() -> void:
 		"steps":
 			var ns := rng.randi_range(3, 5)
 			for i in ns:
-				var sh := _rf(0.5, 1.1) * lerpf(0.8, 1.3, d)
-				_hermite(_rf(1.2, 2.0), _y() + sh, 0.0, s, max_slope * 1.6)
+				var sh := _rf(0.4, 0.8) * lerpf(0.8, 1.25, d)
+				_hermite(_rf(2.2, 3.2), _y() + sh, 0.0, s, max_slope * 1.2)
 				_hermite(_rf(2.0, 4.0), _y() + _rf(-0.1, 0.1), 0.0, s, max_slope)
 		"dunes":
 			var nd := rng.randi_range(2, 3)
@@ -242,13 +246,19 @@ func _jump(d: float, max_slope: float) -> void:
 	_hermite(_rf(6, 10), _y(), 0.0, SURF_BASE, max_slope)
 	var rx0 := _x()
 	var rh := _rf(1.0, 1.8) * lerpf(1.0, 1.5, d)
-	var rl := rh / _rf(0.32, 0.5)
-	_linear(rl, rh, SURF_BASE, 1)
+	var slope := _rf(0.32, 0.48)
+	# concave fillet into the ramp, then the straight kicker
+	var fillet := 2.5
+	_hermite(fillet, _y() + slope * fillet * 0.5, slope, SURF_BASE, 1.0, 1)
+	var rest := maxf(rh - slope * fillet * 0.5, 0.3)
+	_linear(rest / slope, rest, SURF_BASE, 1)
 	ramps.append({"x0": rx0, "x1": _x(), "h": rh})
 	_linear(0.5, 0.0, SURF_BASE, 1)
-	var drop := _rf(1.5, 3.5) * lerpf(1.0, 1.6, d)
-	_linear(1.5, -drop, SURF_BASE, 1)
-	_last_slope = -0.15
+	# The far side falls away at ~45°: fast cars fly, slow cars roll down
+	# (an abrupt cliff would high-centre slow cars on the lip).
+	var drop := _rf(1.5, 3.2) * lerpf(1.0, 1.5, d)
+	_linear(drop / 0.95, -drop, SURF_BASE, 1)
+	_last_slope = -0.35
 	_hermite(_rf(10, 16), _y() - _rf(0.5, 1.5), -0.05, SURF_BASE, max_slope)
 	_hermite(_rf(6, 10), _y(), 0.0, SURF_BASE, max_slope)
 
@@ -270,19 +280,19 @@ func _bridge(d: float, max_slope: float) -> void:
 
 
 func _trench(d: float, max_slope: float) -> void:
+	# Wide, smooth dip: long-wheelbase vehicles must not bridge it.
 	_hermite(_rf(5, 8), _y(), 0.0, SURF_BASE, max_slope)
-	var depth := _rf(1.0, 1.8) * lerpf(1.0, 1.4, d)
-	_linear(depth / 0.8, -depth, SURF_BASE, 1)
-	_linear(_rf(2.0, 4.0), 0.0, SURF_BASE, 1)
-	_linear(depth / 0.55, depth, SURF_BASE, 1)
-	_last_slope = 0.0
+	var depth := _rf(0.8, 1.4) * lerpf(1.0, 1.3, d)
+	_hermite(depth / 0.32, _y() - depth, 0.0, SURF_BASE, maxf(max_slope, 0.6), 1)
+	_hermite(_rf(3.0, 5.0), _y() + _rf(-0.1, 0.1), 0.0, SURF_BASE, max_slope, 1)
+	_hermite(depth / 0.3, _y() + depth, 0.0, SURF_BASE, maxf(max_slope, 0.6), 1)
 	_hermite(_rf(5, 8), _y(), 0.0, SURF_BASE, max_slope)
 
 
 # ------------------------------------------------------------------ placement
 func _place_obstacles(start_idx: int, kind: String, d: float) -> void:
 	var ob: Dictionary = env.get("obstacles", {})
-	if ob.is_empty() or kind in ["jump", "bridge", "trench"]:
+	if ob.is_empty() or kind in ["jump", "bridge", "trench", "steps"] or start_idx * STEP < 80.0:
 		return
 	var chance := float(ob.get("chance", 0.0)) * lerpf(0.6, 1.4, d)
 	var kinds: Array = ob.get("kinds", ["rock"])
@@ -291,7 +301,7 @@ func _place_obstacles(start_idx: int, kind: String, d: float) -> void:
 	while i < end:
 		if rng.randf() < chance * 0.04:
 			var x := i * STEP
-			if absf(slope_at(x)) < 0.28 and flags[i] == 0 and not _in_bridge(x):
+			if absf(slope_at(x)) < 0.2 and absf(slope_at(x + 2.0)) < 0.25 and flags[i] == 0 and not _in_bridge(x):
 				var k: String = kinds[rng.randi() % kinds.size()]
 				var size := _rf(float(ob.get("min", 0.25)), float(ob.get("max", 0.5))) * lerpf(1.0, 1.25, d)
 				obstacles.append({"kind": k, "x": x, "y": height_at(x), "size": size, "rot": rng.randf() * TAU, "seed": rng.randi()})

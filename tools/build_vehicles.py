@@ -38,7 +38,7 @@ ARCH = {
     "trophy":       dict(grip=1.35, suspension=1.6, travel=0.55, com_h=0.70, front_bias=0.50, air_control=1.1, desc="trophy"),
     "monster":      dict(grip=1.40, suspension=1.5, travel=0.60, com_h=1.35, front_bias=0.50, air_control=1.2, desc="monster"),
     "buggy":        dict(grip=1.30, suspension=1.5, travel=0.45, com_h=0.50, front_bias=0.42, air_control=1.3, desc="buggy"),
-    "kart":         dict(grip=1.40, suspension=0.7, travel=0.07, com_h=0.26, front_bias=0.42, air_control=1.4, desc="kart"),
+    "kart":         dict(grip=1.40, suspension=0.8, travel=0.13, com_h=0.30, front_bias=0.42, air_control=1.4, desc="kart"),
     "tractor":      dict(grip=1.60, suspension=0.9, travel=0.18, com_h=0.85, front_bias=0.38, air_control=0.7, desc="tractor"),
     "rover":        dict(grip=1.25, suspension=1.4, travel=0.38, com_h=0.55, front_bias=0.50, air_control=1.5, desc="rover"),
 }

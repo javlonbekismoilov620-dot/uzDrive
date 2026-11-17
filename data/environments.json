@@ -1271,7 +1271,7 @@
      "rock"
     ],
     "min": 0.28,
-    "max": 0.6
+    "max": 0.5
    },
    "pickups": {
     "fuel_first": 170,

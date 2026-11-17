@@ -90,7 +90,7 @@ func _build_clouds(world: Node2D) -> void:
 	d.color = Util.col(cl.get("color", "#ffffff"))
 	d.count = int(cl.get("count", 5))
 	d.width = LAYER_W * 1.5
-	d.position = Vector2(0, -620)
+	d.position = Vector2(0, 30)
 	px.add_child(d)
 
 
@@ -126,7 +126,9 @@ func _build_layer(world: Node2D, spec: Dictionary, index: int) -> void:
 	var d := _LayerDraw.new()
 	d.spec = spec
 	d.width = LAYER_W
-	d.position = Vector2(0, float(spec.get("y", 0)) + 110.0)
+	# Low scroll_scale makes Parallax2D content behave almost like screen
+	# space, so the baseline is expressed relative to the top of the screen.
+	d.position = Vector2(0, float(spec.get("y", 0)) + 520.0)
 	px.add_child(d)
 
 

@@ -229,67 +229,48 @@ func _build_obstacles() -> void:
 		body.collision_layer = K.LAYER_TERRAIN
 		body.collision_mask = 0
 		body.add_to_group("terrain")
+		# Obstacles are rollable: low, wide mounds whose faces stay under ~50°,
+		# so every wheel size can climb them with a satisfying bump.
 		var size: float = o.size * P
 		var base := Vector2(o.x * P, -o.y * P)
 		var r := RandomNumberGenerator.new()
 		r.seed = int(o.seed)
-		var poly := PackedVector2Array()
 		var col := tint
+		var poly := PackedVector2Array()
 		match o.kind:
 			"log":
-				var rad := size * 0.6
-				var cs := CollisionShape2D.new()
-				var c := CircleShape2D.new()
-				c.radius = rad
-				cs.shape = c
-				cs.position = base + Vector2(0, -rad * 0.8)
-				body.add_child(cs)
+				var rad := size * 0.48
+				var center := base + Vector2(0, -rad * 0.85)
+				poly = Util.circle_poly(center, rad, 14)
 				var dn := _DrawNode.new()
-				var center := cs.position
 				dn.painter = func(ci: CanvasItem) -> void:
-					ci.draw_rect(Rect2(center.x - rad * 2.2, center.y - rad, rad * 4.4, rad * 2.0), Color("7a5232"))
-					ci.draw_rect(Rect2(center.x - rad * 2.2, center.y - rad, rad * 4.4, rad * 0.5), Color("94683f"))
-					ci.draw_circle(Vector2(center.x + rad * 2.2, center.y), rad, Color("c79a64"))
-					ci.draw_arc(Vector2(center.x + rad * 2.2, center.y), rad * 0.6, 0, TAU, 16, Color("9c7148"), 2.0)
-				# make it longer: three circles in a row so it behaves like a log
-				for dx in [-rad * 1.6, rad * 1.6]:
-					var cs2 := CollisionShape2D.new()
-					cs2.shape = c
-					cs2.position = center + Vector2(dx, 0)
-					body.add_child(cs2)
-				add_child(dn)
+					ci.draw_circle(center, rad, Color("7a5232"))
+					ci.draw_circle(center, rad * 0.78, Color("c79a64"))
+					ci.draw_arc(center, rad * 0.5, 0, TAU, 14, Color("9c7148"), 2.0)
+					ci.draw_arc(center, rad * 0.25, 0, TAU, 10, Color("9c7148"), 1.5)
+				var cp0 := CollisionPolygon2D.new()
+				cp0.polygon = poly
+				body.add_child(cp0)
 				add_child(body)
+				add_child(dn)
 				continue
 			"bump":
-				for i in 13:
-					var a := PI + PI * i / 12.0
-					poly.append(base + Vector2(cos(a) * size * 1.6, sin(a) * size * 0.55 + 2))
+				poly = _cos_mound(base, size * 1.8, size * 0.45, 0.0, r)
 				col = Color("ffcf33")
 			"crate":
-				var hw := size * 0.7
-				poly = PackedVector2Array([base + Vector2(-hw, 3), base + Vector2(hw, 3), base + Vector2(hw, -size * 1.2), base + Vector2(-hw, -size * 1.2)])
+				# low pallet with chamfered ends
+				var hw := size * 1.4
+				var h := size * 0.6
+				poly = PackedVector2Array([base + Vector2(-hw - h, 3), base + Vector2(hw + h, 3), base + Vector2(hw, -h), base + Vector2(-hw, -h)])
 				col = Color("b98149")
 			"bale":
-				var hw2 := size * 1.0
-				poly = PackedVector2Array([base + Vector2(-hw2, 3), base + Vector2(hw2, 3), base + Vector2(hw2 * 0.92, -size * 1.1), base + Vector2(-hw2 * 0.92, -size * 1.1)])
+				poly = _cos_mound(base, size * 1.7, size * 0.75, 0.0, r)
 				col = Color("e3bd55")
-			"ice":
-				var pts := PackedVector2Array()
-				for i in 6:
-					pts.append(base + Vector2(r.randf_range(-1.0, 1.0) * size, -r.randf_range(0.0, 1.0) * size))
-				pts.append(base + Vector2(-size, 3))
-				pts.append(base + Vector2(size, 3))
-				poly = Geometry2D.convex_hull(pts)
-				col = Color("bfe6ff")
 			_:
-				var pts2 := PackedVector2Array()
-				for i in 7:
-					pts2.append(base + Vector2(r.randf_range(-1.1, 1.1) * size, -r.randf_range(0.2, 1.0) * size))
-				pts2.append(base + Vector2(-size * 1.2, 4))
-				pts2.append(base + Vector2(size * 1.2, 4))
-				poly = Geometry2D.convex_hull(pts2)
-		if poly.size() > 1 and poly[0] == poly[poly.size() - 1]:
-			poly.remove_at(poly.size() - 1)
+				# rock / ice: irregular low mound
+				poly = _cos_mound(base, size * 1.7, size * 0.7, 0.12, r)
+				if o.kind == "ice":
+					col = Color("bfe6ff")
 		var cp := CollisionPolygon2D.new()
 		cp.polygon = poly
 		body.add_child(cp)
@@ -301,8 +282,8 @@ func _build_obstacles() -> void:
 		for p in poly:
 			top_y = minf(top_y, p.y)
 		for p in poly:
-			var t := clampf((p.y - top_y) / maxf(size, 1.0), 0.0, 1.0)
-			vc.append(col.lightened(0.15).lerp(col.darkened(0.3), t))
+			var t2 := clampf((p.y - top_y) / maxf(size * 0.7, 1.0), 0.0, 1.0)
+			vc.append(col.lightened(0.18).lerp(col.darkened(0.3), t2))
 		vis_poly.vertex_colors = vc
 		add_child(vis_poly)
 		if o.kind == "bump":
@@ -311,9 +292,40 @@ func _build_obstacles() -> void:
 			var ss := size
 			stripes.painter = func(ci: CanvasItem) -> void:
 				for i in 3:
-					var x := bb.x + (i - 1) * ss * 0.9
-					ci.draw_line(Vector2(x - 4, bb.y - ss * 0.1), Vector2(x + 4, bb.y - ss * 0.5), Color("1d1d1d"), 5.0)
+					var x := bb.x + (i - 1) * ss * 1.0
+					ci.draw_line(Vector2(x - 4, bb.y - ss * 0.05), Vector2(x + 4, bb.y - ss * 0.38), Color("1d1d1d"), 5.0)
 			add_child(stripes)
+		elif o.kind == "crate":
+			var planks := _DrawNode.new()
+			var bb2 := base
+			var ss2 := size
+			planks.painter = func(ci: CanvasItem) -> void:
+				for i in 3:
+					var y := bb2.y - ss2 * 0.6 * (0.2 + 0.3 * i)
+					ci.draw_line(Vector2(bb2.x - ss2 * 1.4, y), Vector2(bb2.x + ss2 * 1.4, y), Color("8a5a2b"), 2.0)
+			add_child(planks)
+		elif o.kind == "bale":
+			var lines := _DrawNode.new()
+			var bb3 := base
+			var ss3 := size
+			lines.painter = func(ci: CanvasItem) -> void:
+				for i in 3:
+					ci.draw_arc(bb3 + Vector2(0, 3), ss3 * (0.5 + 0.35 * i), PI * 1.1, PI * 1.9, 10, Color("c9a03a"), 2.0)
+			add_child(lines)
+
+
+## Smooth cosine mound (zero slope at both ends, max face slope ~35°).
+func _cos_mound(base: Vector2, half_w: float, h: float, jitter: float, r: RandomNumberGenerator) -> PackedVector2Array:
+	var pts := PackedVector2Array()
+	var n := 12
+	for i in n + 1:
+		var t := float(i) / n
+		var x := lerpf(-half_w, half_w, t)
+		var y := h * (0.5 + 0.5 * cos(PI * x / half_w))
+		if i > 0 and i < n:
+			y *= 1.0 + r.randf_range(-jitter, jitter)
+		pts.append(base + Vector2(x, -y + 3.0))
+	return pts
 
 
 func _build_bridges() -> void:

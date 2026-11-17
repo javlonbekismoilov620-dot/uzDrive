@@ -36,7 +36,7 @@ const TYPES := {
 	"trophy": {"L": 5.5, "H": 1.6, "belt": 0.9, "nose": 0.7, "tail": 0.9, "hood": 1.45, "ws": 0.72, "rw": 0.1, "trunk": 1.6, "wr": 0.48, "clear": 0.52, "oh_r": 1.05, "oh_f": 1.05, "r_roof": 0.25, "r_nose": 0.3, "r_tail": 0.1},
 	"monster": {"L": 4.6, "H": 1.7, "belt": 1.0, "nose": 0.86, "tail": 1.0, "hood": 1.15, "ws": 0.6, "rw": 0.08, "trunk": 1.45, "wr": 0.88, "clear": 1.1, "oh_r": 0.75, "oh_f": 0.75, "r_roof": 0.25, "r_nose": 0.22, "r_tail": 0.1},
 	"buggy": {"L": 3.6, "H": 1.55, "belt": 0.62, "nose": 0.5, "tail": 0.7, "hood": 0.9, "ws": 0.6, "rw": 0.5, "trunk": 0.4, "wr": 0.42, "clear": 0.4, "oh_r": 0.55, "oh_f": 0.55, "r_roof": 0.2, "r_nose": 0.25, "r_tail": 0.1},
-	"kart": {"L": 2.3, "H": 1.0, "belt": 0.35, "nose": 0.28, "tail": 0.35, "hood": 0.7, "ws": 0.2, "rw": 0.2, "trunk": 0.3, "wr": 0.22, "clear": 0.08, "oh_r": 0.3, "oh_f": 0.32, "r_roof": 0.1, "r_nose": 0.12, "r_tail": 0.08},
+	"kart": {"L": 2.3, "H": 1.0, "belt": 0.35, "nose": 0.28, "tail": 0.35, "hood": 0.7, "ws": 0.2, "rw": 0.2, "trunk": 0.3, "wr": 0.24, "clear": 0.12, "oh_r": 0.3, "oh_f": 0.32, "r_roof": 0.1, "r_nose": 0.12, "r_tail": 0.08},
 	"tractor": {"L": 3.9, "H": 2.45, "belt": 1.15, "nose": 1.05, "tail": 1.0, "hood": 1.5, "ws": 0.08, "rw": 0.05, "trunk": 0.25, "wr": 0.78, "wr_f": 0.45, "clear": 0.5, "oh_r": 0.85, "oh_f": 0.55, "r_roof": 0.12, "r_nose": 0.2, "r_tail": 0.1},
 	"rover": {"L": 4.0, "H": 1.25, "belt": 0.62, "nose": 0.5, "tail": 0.6, "hood": 0.9, "ws": 0.5, "rw": 0.5, "trunk": 0.3, "wr": 0.42, "clear": 0.45, "oh_r": 0.5, "oh_f": 0.5, "r_roof": 0.2, "r_nose": 0.3, "r_tail": 0.2},
 }
@@ -224,7 +224,23 @@ func _build(vdef: Dictionary) -> void:
 	ground_y = wheels[0].pos.y + wheels[0].r
 
 	# ---- physics geometry ----
-	var full := body_poly
+	# Collision hull: the body with its lowest part raised and the bumper
+	# corners chamfered, so the chassis glides over crests instead of snagging
+	# its bumpers (the visual body can clip slightly - standard for the genre).
+	var lift := minf(clear * 0.5, 0.14) * P
+	# ~38° approach / departure angles measured from the axles.
+	var tan_a := 0.78
+	var xr_px := xr * P
+	var xf_px := xf * P
+	var clip_poly := PackedVector2Array([
+		Vector2(-60, lift + (xr_px + 60) * tan_a),
+		Vector2(xr_px, lift),
+		Vector2(xf_px, lift),
+		Vector2(_L * P + 60, lift + (_L * P + 60 - xf_px) * tan_a),
+		Vector2(_L * P + 60, _H * P + 200),
+		Vector2(-60, _H * P + 200)])
+	var hull_parts := Geometry2D.intersect_polygons(body_poly, clip_poly)
+	var full := Util.largest(hull_parts) if hull_parts.size() > 0 else body_poly
 	var hull_src := PackedVector2Array()
 	for p in full:
 		hull_src.append(_tx(p))

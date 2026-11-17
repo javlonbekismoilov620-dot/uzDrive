@@ -2899,9 +2899,9 @@
    },
    "handling": {
     "grip": 1.4,
-    "suspension": 0.7,
-    "travel": 0.07,
-    "com_h": 0.26,
+    "suspension": 0.8,
+    "travel": 0.13,
+    "com_h": 0.3,
     "front_bias": 0.42,
     "air_control": 1.4,
     "fuel_time": 48

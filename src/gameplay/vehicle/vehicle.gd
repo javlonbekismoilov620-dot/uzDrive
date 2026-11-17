@@ -71,7 +71,7 @@ func setup(def: Dictionary, levels: Dictionary) -> void:
 	linear_damp = 0.0
 	angular_damp = 0.15
 	var mat := PhysicsMaterial.new()
-	mat.friction = 0.55
+	mat.friction = 0.3
 	mat.bounce = 0.02
 	physics_material_override = mat
 
@@ -196,18 +196,36 @@ func _integrate_forces(state: PhysicsDirectBodyState2D) -> void:
 		var ws: Dictionary = wheel_states[i]
 		var mount_w: Vector2 = xf * (ws.mount as Vector2)
 		var cast_len: float = ws.travel
+		# Godot's cast_motion ignores shapes the cast *starts* inside, so the
+		# sweep begins above the mount: a fully compressed wheel still sees the
+		# ground and the bump stop engages instead of the chassis grounding out.
+		var lift: float = float(ws.r) * 0.9
+		var start: Vector2 = mount_w - down * lift
+		var total: float = cast_len + lift
 		_query.shape = _wheel_shapes[i]
-		_query.transform = Transform2D(0.0, mount_w)
-		_query.motion = down * cast_len
+		_query.transform = Transform2D(0.0, start)
+		_query.motion = down * total
 		var res := space.cast_motion(_query)
 		ws.contact = false
+		var hit := false
+		var dist := 0.0
 		if res.size() == 2 and res[0] < 1.0:
-			var dist: float = cast_len * res[0]
-			_query.transform = Transform2D(0.0, mount_w + down * (cast_len * res[1] + 0.5))
+			hit = true
+			dist = total * res[0] - lift
+			_query.transform = Transform2D(0.0, start + down * (total * res[1] + 0.5))
+		else:
+			# Deeply embedded (e.g. hard landing): detect plain overlap at the mount.
+			_query.transform = Transform2D(0.0, mount_w)
+			_query.motion = Vector2.ZERO
+			var probe := space.get_rest_info(_query)
+			if not probe.is_empty():
+				hit = true
+				dist = -lift * 0.5
+		if hit:
 			_query.motion = Vector2.ZERO
 			var info := space.get_rest_info(_query)
 			var n := -down
-			var pt: Vector2 = mount_w + down * (dist + float(ws.r))
+			var pt: Vector2 = mount_w + down * (maxf(dist, 0.0) + float(ws.r))
 			if not info.is_empty():
 				n = info.normal
 				pt = info.point
@@ -391,7 +409,7 @@ func _process(delta: float) -> void:
 	for ws in wheel_states:
 		ws.angle = fmod(ws.angle + ws.spin * delta, TAU)
 		var m: Vector2 = ws.mount
-		pos.append(Vector2(m.x, m.y + ws.dist))
+		pos.append(Vector2(m.x, m.y + clampf(float(ws.dist), -float(ws.r) * 0.25, float(ws.travel))))
 		ang.append(ws.angle)
 	visual.set_wheels(pos, ang)
 

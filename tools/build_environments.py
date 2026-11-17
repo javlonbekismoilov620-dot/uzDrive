@@ -173,7 +173,7 @@ ENVS = [
         terrain=dict(seed=7741, start_flat=30, amp=3.2, amp_max=9.0, max_slope=0.58, max_slope_late=0.98, spacing=[7, 15],
                      trend=0.03, difficulty_dist=3400, bump_scale=1.3,
                      features=dict(hills=1.0, steps=0.4, climb=0.3, bridge=0.2, jump=0.25, bumps=0.3, valley=0.15)),
-        obstacles=dict(chance=0.55, kinds=["rock", "rock", "rock"], min=0.28, max=0.6),
+        obstacles=dict(chance=0.55, kinds=["rock", "rock", "rock"], min=0.28, max=0.5),
         pickups=dict(fuel_first=170, fuel_base=220, fuel_growth=0.07, fuel_max=500, gem_every=580, boost_every=220, coin_gap=[22, 36]),
         coin_tiers=tiers(450),
         visual=dict(
