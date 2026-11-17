@@ -1,0 +1,33 @@
+{
+ "_comment": "Economy tuning. See docs/ECONOMY.md for the balancing rationale.",
+ "start_coins": 500,
+ "start_gems": 5,
+ "distance_coins_per_m": 0.5,
+ "checkpoint_bonus": 150,
+ "tricks": {
+  "flip": 150,
+  "double_flip": 450,
+  "big_air": 100,
+  "huge_air": 250,
+  "wheelie": 75,
+  "big_air_time": 1.4,
+  "huge_air_time": 2.4,
+  "wheelie_time": 2.0
+ },
+ "boost": {"max": 100, "cost": 50, "duration": 2.5, "cooldown": 3.0, "per_meter": 0.15, "flip": 30, "air": 12, "wheelie": 12, "pickup": 40, "start": 50},
+ "revive_gems": [5, 10, 20],
+ "daily_login": [
+  {"coins": 500},
+  {"coins": 1000},
+  {"gems": 3},
+  {"coins": 2000},
+  {"coins": 3500},
+  {"gems": 5},
+  {"coins": 6000, "gems": 10}
+ ],
+ "gem_exchange": [
+  {"gems": 10, "coins": 5000},
+  {"gems": 50, "coins": 28000},
+  {"gems": 150, "coins": 95000}
+ ]
+}

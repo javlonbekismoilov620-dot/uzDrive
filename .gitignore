@@ -1,0 +1,16 @@
+# Godot
+.godot/
+*.translation
+/build/
+/export/
+*.apk
+*.aab
+*.ipa
+*.keystore
+!debug.keystore.example
+export_credentials.cfg
+# OS / tools
+.DS_Store
+__pycache__/
+*.pyc
+/tools/_out/

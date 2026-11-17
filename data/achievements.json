@@ -1,0 +1,20 @@
+{
+ "_comment": "Long-term tiered achievements. metric names map to Profile stats or derived values (see Progress.metric_value).",
+ "achievements": [
+  {"id": "distance", "metric": "total_distance", "tiers": [1000, 10000, 50000, 200000], "rewards": [{"coins": 500}, {"coins": 3000}, {"gems": 10}, {"gems": 25}]},
+  {"id": "best_run", "metric": "best_run", "tiers": [500, 1500, 3000, 5000], "rewards": [{"coins": 400}, {"coins": 2000}, {"gems": 10}, {"gems": 20}]},
+  {"id": "coins", "metric": "total_coins", "tiers": [1000, 25000, 250000, 1000000], "rewards": [{"coins": 300}, {"coins": 2500}, {"gems": 10}, {"gems": 25}]},
+  {"id": "vehicles", "metric": "vehicles_owned", "tiers": [2, 5, 15, 30, 61], "rewards": [{"coins": 500}, {"coins": 3000}, {"gems": 15}, {"gems": 30}, {"gems": 100}]},
+  {"id": "legends", "metric": "gm_owned", "tiers": [3, 10, 25], "rewards": [{"coins": 1500}, {"gems": 10}, {"gems": 40}]},
+  {"id": "engine", "metric": "max_engine_level", "tiers": [3, 5, 10, 15], "rewards": [{"coins": 500}, {"coins": 2000}, {"gems": 10}, {"gems": 25}]},
+  {"id": "maxed", "metric": "vehicles_maxed", "tiers": [1, 5], "rewards": [{"gems": 10}, {"gems": 30}]},
+  {"id": "legendary", "metric": "legendary_owned", "tiers": [1, 3, 10], "rewards": [{"gems": 10}, {"gems": 25}, {"gems": 60}]},
+  {"id": "maps", "metric": "maps_completed", "tiers": [1, 4, 8], "rewards": [{"coins": 1500}, {"gems": 15}, {"gems": 50}]},
+  {"id": "flips", "metric": "total_flips", "tiers": [5, 50, 250], "rewards": [{"coins": 800}, {"coins": 4000}, {"gems": 15}]},
+  {"id": "jumps", "metric": "total_jumps", "tiers": [25, 250, 1000], "rewards": [{"coins": 500}, {"coins": 3000}, {"gems": 10}]},
+  {"id": "airtime", "metric": "best_airtime", "tiers": [2, 3.5, 5], "rewards": [{"coins": 600}, {"coins": 2500}, {"gems": 10}]},
+  {"id": "fuel", "metric": "total_fuel", "tiers": [20, 200, 1000], "rewards": [{"coins": 500}, {"coins": 3000}, {"gems": 10}]},
+  {"id": "runs", "metric": "total_runs", "tiers": [10, 100, 500], "rewards": [{"coins": 500}, {"coins": 3000}, {"gems": 15}]},
+  {"id": "daily", "metric": "daily_done", "tiers": [3, 30, 100], "rewards": [{"coins": 800}, {"gems": 10}, {"gems": 30}]}
+ ]
+}

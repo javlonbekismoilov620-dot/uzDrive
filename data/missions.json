@@ -1,0 +1,20 @@
+{
+ "_comment": "Daily mission templates. 3 are drawn per day (seeded by date). Tier 0-2 is picked from player progress.",
+ "daily_count": 3,
+ "all_done_bonus": {"gems": 5},
+ "templates": [
+  {"id": "drive_total", "metric": "distance", "mode": "add", "targets": [1500, 3500, 7000], "coins": [500, 1100, 2400]},
+  {"id": "drive_single", "metric": "run_distance", "mode": "max", "targets": [400, 900, 1600], "coins": [450, 1000, 2200]},
+  {"id": "collect_coins", "metric": "coins", "mode": "add", "targets": [400, 1500, 4000], "coins": [400, 900, 2000]},
+  {"id": "jumps", "metric": "jump", "mode": "add", "targets": [10, 25, 50], "coins": [400, 900, 1800]},
+  {"id": "flips", "metric": "flip", "mode": "add", "targets": [1, 3, 6], "coins": [600, 1300, 2600]},
+  {"id": "airtime", "metric": "airtime", "mode": "add", "targets": [15, 40, 90], "coins": [450, 1000, 2100]},
+  {"id": "fuel_cans", "metric": "fuel", "mode": "add", "targets": [4, 10, 20], "coins": [450, 1000, 2100]},
+  {"id": "boosts", "metric": "boost", "mode": "add", "targets": [4, 10, 20], "coins": [400, 900, 1800]},
+  {"id": "checkpoints", "metric": "checkpoint", "mode": "add", "targets": [1, 3, 6], "coins": [500, 1200, 2500]},
+  {"id": "wheelie", "metric": "wheelie", "mode": "add", "targets": [6, 15, 30], "coins": [450, 1000, 2100]},
+  {"id": "runs", "metric": "run", "mode": "add", "targets": [3, 6, 10], "coins": [350, 800, 1500]},
+  {"id": "upgrades", "metric": "upgrade", "mode": "add", "targets": [2, 4, 7], "coins": [400, 900, 1800]}
+ ],
+ "seasonal": []
+}
