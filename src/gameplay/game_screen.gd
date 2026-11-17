@@ -59,6 +59,7 @@ var _tricks: Dictionary
 var _wheelie_t := 0.0
 var _wheelie_award := 0.0
 var _stall_t := 0.0
+var _fuel_out_t := 0.0
 var _end_timer := 0.0
 var _shake := 0.0
 var _coin_combo := 0
@@ -147,8 +148,8 @@ func _build_world() -> void:
 		world.add_child(cm)
 		headlight = PointLight2D.new()
 		headlight.texture = _cone_texture()
-		headlight.texture_scale = 1.6
-		headlight.energy = 1.35
+		headlight.texture_scale = 1.8
+		headlight.energy = 1.7
 		headlight.color = Color("fff1c9")
 		headlight.offset = Vector2(230, 0)
 		headlight.position = vehicle.shape.headlight
@@ -279,14 +280,17 @@ func _run_step(delta: float) -> void:
 		Audio.sfx("complete")
 		Audio.vibrate(80)
 
-	# out of fuel → wait until the car stops
+	# out of fuel → end when the car stops (or after a short coast)
 	if fuel <= 0.0:
-		if absf(vehicle.speed_ms) < 0.6 or not vehicle.grounded and false:
+		_fuel_out_t += delta
+		if absf(vehicle.speed_ms) < 0.8:
 			_stall_t += delta
 		else:
 			_stall_t = maxf(_stall_t - delta * 0.5, 0.0)
-		if _stall_t > 1.6:
+		if _stall_t > 1.2 or _fuel_out_t > 7.0:
 			_end_run("fuel")
+	else:
+		_fuel_out_t = 0.0
 	# fell off the world (safety)
 	if vehicle.global_position.y > terrain.surface_y_px(vehicle.global_position.x) + 40.0 * P:
 		_end_run("crash")
@@ -532,6 +536,7 @@ func revive() -> bool:
 		return false
 	revives += 1
 	fuel = 1.0
+	_fuel_out_t = 0.0
 	_low_fuel_warned = false
 	var x := vehicle.global_position.x
 	var y := terrain.surface_y_px(x)

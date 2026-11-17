@@ -126,6 +126,20 @@ func _build_top_band(top: PackedVector2Array) -> void:
 		hl.default_color = c.lightened(0.22)
 		hl.joint_mode = Line2D.LINE_JOINT_ROUND
 		add_child(hl)
+		if vis.get("lane", false) and s == 0:
+			# dashed lane marking along the road surface
+			var dash := _DrawNode.new()
+			var seg_pts := pts.duplicate()
+			var off := band_h * 0.42
+			dash.painter = func(ci: CanvasItem) -> void:
+				var acc := 0.0
+				for i in seg_pts.size() - 1:
+					var a: Vector2 = seg_pts[i] + Vector2(0, off)
+					var b: Vector2 = seg_pts[i + 1] + Vector2(0, off)
+					var on := fmod(a.x, 96.0) < 48.0
+					if on:
+						ci.draw_line(a, b, Color(1, 1, 1, 0.75), 3.0)
+			add_child(dash)
 		start = end
 		if end >= n - 1:
 			break

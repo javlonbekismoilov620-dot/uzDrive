@@ -253,9 +253,10 @@ func _jump(d: float, max_slope: float) -> void:
 	var rest := maxf(rh - slope * fillet * 0.5, 0.3)
 	_linear(rest / slope, rest, SURF_BASE, 1)
 	ramps.append({"x0": rx0, "x1": _x(), "h": rh})
-	_linear(0.5, 0.0, SURF_BASE, 1)
-	# The far side falls away at ~45°: fast cars fly, slow cars roll down
-	# (an abrupt cliff would high-centre slow cars on the lip).
+	# Rounded crest, then the far side falls away at ~45°: fast cars fly, slow
+	# cars roll over and down (a sharp apex would high-centre slow cars).
+	_last_slope = slope
+	_hermite(1.8, _y() + slope * 0.35, -0.9, SURF_BASE, 2.0, 1)
 	var drop := _rf(1.5, 3.2) * lerpf(1.0, 1.5, d)
 	_linear(drop / 0.95, -drop, SURF_BASE, 1)
 	_last_slope = -0.35

@@ -20,12 +20,15 @@ const COIN_VALUES := [5, 10, 25, 50, 100, 250, 500]
 ## Per-level effect of upgrades (fractions). Kept here so UI and physics agree.
 const UPG_ENGINE_ACCEL := 0.06
 const UPG_ENGINE_POWER := 0.06
-const UPG_ENGINE_TOP := 0.025
+const UPG_ENGINE_TOP := 0.04
 const UPG_SUSP_DAMP := 0.05
 const UPG_SUSP_TRAVEL := 0.025
 const UPG_SUSP_LANDING := 0.08
 const UPG_TIRES_GRIP := 0.05
 const UPG_FUEL_CAP := 0.10
+## Arcade tyre grip multiplier applied on top of the per-vehicle value
+## (keeps the starter engine-limited rather than traction-limited).
+const GRIP_SCALE := 1.25
 
 const RARITY_COLORS := {
 	"common": Color("9fb1c6"),

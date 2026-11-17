@@ -71,7 +71,7 @@ func _compute() -> void:
 	accel *= 1.0 + K.UPG_ENGINE_ACCEL * le
 	top_speed = (9.0 + float(sp.get("top_kmh", 150)) * 0.078) * (1.0 + K.UPG_ENGINE_TOP * le)
 	brake = 11.0
-	grip = float(hd.get("grip", 1.0)) * (1.0 + K.UPG_TIRES_GRIP * lt)
+	grip = float(hd.get("grip", 1.0)) * K.GRIP_SCALE * (1.0 + K.UPG_TIRES_GRIP * lt)
 	var susp_q := float(hd.get("suspension", 1.0))
 	damping_ratio = clampf(0.30 + 0.12 * susp_q + K.UPG_SUSP_DAMP * ls, 0.25, 0.95)
 	travel = maxf(float(hd.get("travel", 0.25)), 0.1) * (1.0 + K.UPG_SUSP_TRAVEL * ls)
@@ -91,7 +91,7 @@ func rating(stat: String) -> float:
 		"speed":
 			return clampf((top_speed - 16.0) / 30.0 * 100.0, 3.0, 100.0)
 		"grip":
-			return clampf((grip - 0.6) / 1.4 * 100.0, 3.0, 100.0)
+			return clampf((grip - 0.75) / 1.75 * 100.0, 3.0, 100.0)
 		"suspension":
 			return clampf((damping_ratio - 0.3) / 0.65 * 60.0 + (travel - 0.15) / 0.6 * 40.0, 3.0, 100.0)
 		"fuel":

@@ -203,9 +203,9 @@ ENVS = [
         coin_tiers=tiers(600), night=True,
         visual=dict(
             sky=["#070b1f", "#2b2f63"], moon=dict(color="#f4f1de", x=0.8, y=0.16, r=34), stars=110, clouds=dict(color="#3a3f73", count=3),
-            ground="#2b2b38", ground_dark="#0b0b10", top="#3a3d4d", top_dark="#23252f", top_h=0.36, lane=True,
+            ground="#3a3a4c", ground_dark="#101018", top="#565a70", top_dark="#30333f", top_h=0.36, lane=True,
             patch_top="#2d4a66", patch_top_dark="#1e3247", texture="ground_night", rock="#585c6b",
-            bridge="#596273", water="#1f3a5a", ramp_style="metal", ambient="#56628f",
+            bridge="#596273", water="#1f3a5a", ramp_style="metal", ambient="#8796c8",
             decor_back=[["lamp_lit", 0.22, "#454b5c", 0.95, 1.1], ["reflector", 0.4, "#ffffff", 0.9, 1.0], ["rail", 0.1, "#8a93a6", 0.9, 1.0], ["billboard", 0.03, "#ff4d6d", 0.9, 1.1]],
             decor_front=[],
             layers=[

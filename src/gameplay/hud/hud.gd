@@ -75,10 +75,12 @@ func _ready() -> void:
 	progress.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	tc.add_child(progress)
 	best_label = Label.new()
-	best_label.theme_type_variation = "Small"
+	best_label.add_theme_font_override("font", UI.font_bold)
+	best_label.add_theme_font_size_override("font_size", 17)
 	best_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	best_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.5))
-	best_label.add_theme_constant_override("outline_size", 4)
+	best_label.add_theme_color_override("font_color", Color.WHITE)
+	best_label.add_theme_color_override("font_outline_color", Color(0.02, 0.05, 0.12, 0.85))
+	best_label.add_theme_constant_override("outline_size", 6)
 	tc.add_child(best_label)
 
 	# ---- top-right: pause ----

@@ -338,7 +338,11 @@ func _integrate_forces(state: PhysicsDirectBodyState2D) -> void:
 				alpha = 0.0
 			state.apply_torque(alpha * inertia)
 		else:
-			state.apply_torque(-lean * spec.air_alpha * spec.ground_tilt * inertia)
+			# Lean control on the ground only while balancing on one axle
+			# (wheelies, crests). With all wheels planted the natural pitch from
+			# the drive forces is used, so FWD cars keep their front-axle load.
+			if contacts < wheel_states.size():
+				state.apply_torque(-lean * spec.air_alpha * spec.ground_tilt * inertia)
 			if _landing_t > 0.0:
 				state.apply_torque(-w * spec.landing_stab * 6.0 * inertia)
 
