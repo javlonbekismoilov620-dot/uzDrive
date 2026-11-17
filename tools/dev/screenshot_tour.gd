@@ -28,6 +28,8 @@ func _run(lang: String) -> void:
 	profile.data.stats["total_distance"] = 5400.0
 	profile.data.stats["best_run"] = 870.0
 	profile.data.rewards.login = {"last": Util.today_str(), "day": 0}
+	profile.data.tutorial.done = true
+	profile.data.garage.selected = "sarbon_burgut"
 	loc.set_language(lang, false)
 	var main = load("res://src/main/main.tscn").instantiate()
 	root.add_child(main)
@@ -54,9 +56,11 @@ func _run(lang: String) -> void:
 			await _shot("%02d_pause" % i)
 			main.current.pause_menu.resume()
 		elif s == "results":
-			main.current.fuel = 0.0
 			Input.action_release("gas")
-			await _wait(6.0)
+			main.current.run_coins = 1240
+			main.current.trick_coins = 250
+			main.current._end_run("fuel")
+			await _wait(3.0)
 			await _shot("%02d_results" % i)
 		elif s == "daily":
 			profile.data.rewards.login = {"last": "", "day": -1}

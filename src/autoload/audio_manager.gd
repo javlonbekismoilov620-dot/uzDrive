@@ -89,10 +89,10 @@ func music(track: String, fade := 0.8) -> void:
 	var nw := _music_b if old == _music_a else _music_a
 	if s is AudioStreamOggVorbis:
 		(s as AudioStreamOggVorbis).loop = true
-	var tw := create_tween().set_parallel(true)
 	if old.playing:
+		var tw := create_tween()
 		tw.tween_property(old, "volume_db", -40.0, fade)
-		tw.chain().tween_callback(old.stop)
+		tw.tween_callback(old.stop)
 	if s:
 		nw.stream = s
 		nw.volume_db = -40.0

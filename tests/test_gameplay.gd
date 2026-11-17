@@ -117,3 +117,44 @@ func test_pending_run_recovery() -> void:
 	check(not p.is_empty(), "interrupted run is paid on recovery")
 	eq(Economy.coins(), c0 + int(p.total), "coins added")
 	check(GameScreen.commit_summary(s).is_empty(), "recovery cannot pay twice")
+
+
+func test_multitouch_controls() -> void:
+	# Gas held with one finger while a second finger taps boost and a third
+	# presses brake: every control must track its own finger.
+	fresh_profile()
+	Profile.data.tutorial.done = true
+	var gs: GameScreen = await _start()
+	await wait_frames(2)
+	var hud: Hud = gs.hud
+	var gas_c := hud.gas_pedal.get_global_rect().get_center()
+	var boost_c := hud.boost_btn.get_global_rect().get_center()
+	var brake_c := hud.brake_pedal.get_global_rect().get_center()
+	gs.boost_energy = 100.0
+	_touch(0, gas_c, true)
+	await wait_frames(2)
+	check(hud.gas_pedal.is_down, "finger 0 holds gas")
+	_touch(1, boost_c, true)
+	await wait_frames(2)
+	check(gs.vehicle.boosting, "finger 1 fired boost while gas is held")
+	check(hud.gas_pedal.is_down, "gas still held during second touch")
+	_touch(1, boost_c, false)
+	_touch(2, brake_c, true)
+	await wait_frames(2)
+	check(hud.brake_pedal.is_down and hud.gas_pedal.is_down, "three-finger state tracked independently")
+	_touch(0, gas_c, false)
+	await wait_frames(1)
+	check(not hud.gas_pedal.is_down, "releasing finger 0 releases gas only")
+	check(hud.brake_pedal.is_down, "brake unaffected")
+	_touch(2, brake_c, false)
+	await _stop(gs)
+
+
+func _touch(idx: int, pos: Vector2, pressed: bool) -> void:
+	var e := InputEventScreenTouch.new()
+	e.index = idx
+	e.position = pos
+	e.pressed = pressed
+	# Headless display servers do not dispatch input, so deliver the event
+	# straight to the viewport (same path as a real touch after the OS layer).
+	tree.root.push_input(e, true)

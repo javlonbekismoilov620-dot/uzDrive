@@ -256,7 +256,45 @@ def branding():
                 '<circle cx="44" cy="80" r="4" fill="#dce4ee"/><circle cx="86" cy="80" r="4" fill="#dce4ee"/></svg>')
 
 
+def feature_graphic():
+    """Google Play feature graphic 1024x500."""
+    W, H = 1024, 500
+    sky = np.zeros((H, W, 3))
+    top = np.array([28, 64, 140]); bot = np.array([255, 170, 90])
+    for y in range(H):
+        sky[y, :] = top * (1 - y / H) + bot * (y / H)
+    img = Image.fromarray(sky.astype(np.uint8)).convert("RGBA")
+    d = ImageDraw.Draw(img)
+    d.ellipse([760, 60, 900, 200], fill=(255, 236, 170))
+    for layer, (col, base, amp, ph) in enumerate([((90, 130, 170), 300, 70, 0.3), ((70, 150, 95), 360, 55, 1.4), ((98, 186, 74), 420, 40, 2.2)]):
+        pts = [(x, base - amp * math.sin(x / W * math.pi * (2 + layer) + ph)) for x in range(0, W + 1, 8)]
+        d.polygon(pts + [(W, H), (0, H)], fill=col)
+    icon = draw_icon(360)
+    mask = Image.new("L", (360, 360), 0)
+    ImageDraw.Draw(mask).rounded_rectangle([0, 0, 359, 359], radius=70, fill=255)
+    img.paste(icon, (600, 70), mask)
+    fp = find_font()
+    f1 = ImageFont.truetype(fp, 112) if fp else ImageFont.load_default()
+    f2 = ImageFont.truetype(fp, 44) if fp else ImageFont.load_default()
+    for f in (f1, f2):
+        try:
+            f.set_variation_by_axes([900])
+        except Exception:
+            pass
+    d = ImageDraw.Draw(img)
+    d.text((58, 128), "UZ", font=f1, fill=(0, 0, 0, 110))
+    d.text((52, 120), "UZ", font=f1, fill=(255, 138, 31))
+    uzw = d.textlength("UZ ", font=f1)
+    d.text((58 + uzw, 128), "DRIVE", font=f1, fill=(0, 0, 0, 110))
+    d.text((52 + uzw, 120), "DRIVE", font=f1, fill=(255, 255, 255))
+    d.rectangle([56, 262, 486, 316], fill=(43, 213, 118))
+    tw = d.textlength("HILL ADVENTURE", font=f2)
+    d.text((56 + (430 - tw) / 2, 264), "HILL ADVENTURE", font=f2, fill=(6, 40, 26))
+    img.convert("RGB").save(os.path.join(BR, "feature_graphic.png"))
+
+
 if __name__ == "__main__":
     ground_textures()
     branding()
+    feature_graphic()
     print("textures + branding done")
