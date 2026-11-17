@@ -3,7 +3,7 @@
 Environment: Godot 4.7.2 (official), Linux x86_64 container, headless + Xvfb/Mesa llvmpipe for rendering checks. **Not yet tested on physical Android/iOS devices** (see "Open items").
 
 ## 1. Automated test-suite — `tests/run_tests.gd`
-`godot --headless --fixed-fps 60 --path . -s tests/run_tests.gd` → **43 tests, ~10,950 checks, 0 failures.**
+`godot --headless --fixed-fps 60 --path . -s tests/run_tests.gd` → **45 tests, ~10,970 checks, 0 failures.**
 
 | File | Covers |
 |---|---|
@@ -12,7 +12,7 @@ Environment: Godot 4.7.2 (official), Linux x86_64 container, headless + Xvfb/Mes
 | `test_save` | round-trip incl. 7-digit balances, tampered & truncated files rejected → backup used, interrupted write recovered from temp file, schema migration & integrity repair, cloud snapshot validation & conflict resolution |
 | `test_localization` | identical key sets uz/ru/en, no empty strings, placeholder parity, Uzbek ʻ/ʼ orthography, no Cyrillic in Uzbek, no stray Latin in Russian, every key referenced by code & data exists, language switching & number formatting |
 | `test_progression` | deterministic daily missions per date, tiers, progress (add/max), claim once, achievements tiers & claims, derived metrics |
-| `test_physics` | upgrades raise acceleration/top speed/damping/travel/grip/fuel time; car drives forward; maxed engine is measurably faster; engine+tyres climb a 27° slope much further; AWD out-climbs FWD on a slippery slope |
+| `test_physics` | upgrades raise acceleration/top speed/damping/travel/grip/fuel time; car drives forward; maxed engine is measurably faster; engine+tyres climb a 27° slope much further; AWD out-climbs FWD on a slippery slope; landing on the roof triggers a crash; an air backflip is counted on landing |
 | `test_terrain` | deterministic generation for all 8 maps, slope limits, gentle warm-up, fuel-can spacing, valid coin values, bounded obstacles, all 7 coin values appear within 4.6 km |
 | `test_gameplay` | full run: driving, fuel use, out-of-fuel ending, results, payout exactly once, pending-run snapshot cleared, stats recorded, best distance saved; crash + gem revive (and refusal without gems); pause/resume; pickups & boost rules; crash-recovery payout of an interrupted run (once); **multi-touch** (gas held while boost and brake are pressed by other fingers) |
 | `test_ui` | all 8 menu screens build in uz/ru/en without raw keys or unformatted placeholders; tapping *Buy* alone never purchases (confirmation required) |

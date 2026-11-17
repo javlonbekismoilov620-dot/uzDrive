@@ -34,7 +34,7 @@
 * Generated engine loops (12 profiles), 22 SFX, 3 music tracks; particles (dust, exhaust, boost flame, bursts), camera look-ahead/zoom/shake, trick pop-ups, banners, tutorial with arrows, animated buttons, count-up currencies, turntable previews, live menu scenery.
 
 ## Phase 10 — QA & release prep ✅ (device testing pending)
-* 43 automated tests; fleet QA over 61 cars × 8 maps; rendered screenshot review of every screen in 3 languages; Linux release export verified.
+* 45 automated tests; fleet QA over 61 cars × 8 maps; rendered screenshot review of every screen in 3 languages; Linux release export verified.
 * Export presets (Android AAB, iOS, Linux QA), icons/adaptive icons/splash/feature graphic, version tool, store texts, privacy policy, release guide.
 
 ## Remaining before store submission

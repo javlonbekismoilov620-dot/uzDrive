@@ -92,3 +92,62 @@ func test_awd_beats_fwd_on_slippery_climb() -> void:
 	var awd: float = await _drive("nafis_awd_test", {}, 8.0, env)
 	DB.vehicle_map.erase(awd_def.id)
 	check(awd > fwd + 2.0, "AWD out-climbs FWD on a slippery slope (%.1f vs %.1f m)" % [awd, fwd])
+
+
+func _spawn(env: Dictionary, vid: String) -> Array:
+	var world := Node2D.new()
+	tree.root.add_child(world)
+	var terrain := TerrainManager.new()
+	world.add_child(terrain)
+	terrain.setup(env)
+	terrain.update(0)
+	var v := Vehicle.new()
+	v.setup(DB.vehicle(vid), {})
+	v.surface_provider = terrain.surface_for_x
+	return [world, terrain, v]
+
+
+func test_roof_crash_detected() -> void:
+	var parts := _spawn(_flat_env(), "sarbon_mitti")
+	var world: Node2D = parts[0]
+	var terrain: TerrainManager = parts[1]
+	var v: Vehicle = parts[2]
+	# upside down, just above the ground
+	v.position = Vector2(20 * K.PPM, terrain.surface_y_px(20 * K.PPM) - 2.2 * K.PPM)
+	v.rotation = PI
+	world.add_child(v)
+	var reasons := []
+	v.crashed.connect(func(r): reasons.append(r))
+	for i in 120:
+		await tree.physics_frame
+		if reasons.size() > 0:
+			break
+	check(reasons.size() == 1, "landing on the roof ends the run (crash signal)")
+	tree.root.remove_child(world)
+	world.queue_free()
+
+
+func test_flip_counted_on_landing() -> void:
+	var parts := _spawn(_flat_env(), "qumloq")
+	var world: Node2D = parts[0]
+	var terrain: TerrainManager = parts[1]
+	var v: Vehicle = parts[2]
+	v.position = Vector2(20 * K.PPM, terrain.surface_y_px(20 * K.PPM) - 9.0 * K.PPM)
+	world.add_child(v)
+	var flips := []
+	v.landed.connect(func(_a, _i, f): flips.append(f))
+	# spin backwards in the air (gas = lean back) and stop rotating near level
+	for i in 300:
+		var ang := wrapf(v.rotation, -PI, PI)
+		v.gas = 1.0 if v.air_rot > -TAU + 0.6 else 0.0
+		v.brake = 1.0 if v.air_rot <= -TAU + 0.6 and v.angular_velocity < -0.5 else 0.0
+		if i == 0:
+			v.linear_velocity = Vector2(0, -9.0 * K.PPM)
+		await tree.physics_frame
+		if flips.size() > 0:
+			break
+	check(flips.size() >= 1, "landing reported")
+	if flips.size() >= 1:
+		check(flips[0] <= -1, "one backflip counted (got %d)" % flips[0])
+	tree.root.remove_child(world)
+	world.queue_free()

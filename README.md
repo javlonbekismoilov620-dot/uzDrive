@@ -32,7 +32,7 @@ Drive 61 original vehicles across 8 hand-tuned environments, collect coins and f
 ## Test it
 ```
 godot --headless --path . --import
-godot --headless --fixed-fps 60 --path . -s tests/run_tests.gd                      # 43 tests
+godot --headless --fixed-fps 60 --path . -s tests/run_tests.gd                      # 45 tests
 godot --headless --fixed-fps 60 --path . -s tools/dev/fleet_sim.gd -- green_hills 40 0   # drive all 61 cars
 ```
 
