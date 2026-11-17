@@ -1,14 +1,13 @@
-## Lightweight particle effects (CPUParticles2D: safe on every mobile GPU).
+## Lightweight particle effects built on SimpleParticles (portable to every GPU and WebGL 2).
 class_name Effects
 extends Node2D
 
 static var _soft: Texture2D
 
-var dust: CPUParticles2D
-var smoke: CPUParticles2D
-var flame: CPUParticles2D
-var _burst_pool: Array[CPUParticles2D] = []
-var _bi := 0
+var dust: SimpleParticles
+var smoke: SimpleParticles
+var flame: SimpleParticles
+var sparks: SimpleParticles
 
 
 static func soft_tex() -> Texture2D:
@@ -40,58 +39,34 @@ func _ready() -> void:
 	smoke.gravity = Vector2(0, -30)
 	smoke.scale_amount_min = 0.4
 	smoke.scale_amount_max = 1.0
-	flame = _make(40, 0.35, Color(1.0, 0.6, 0.15, 0.9))
+	flame = _make(40, 0.35, Color(1.0, 0.95, 0.6, 1.0))
+	flame.end_color = Color(1.0, 0.3, 0.05, 0.0)
 	flame.direction = Vector2(-1, 0)
 	flame.spread = 8
 	flame.initial_velocity_min = 220
 	flame.initial_velocity_max = 380
-	flame.gravity = Vector2.ZERO
 	flame.scale_amount_min = 0.5
 	flame.scale_amount_max = 1.1
-	var g := Gradient.new()
-	g.set_color(0, Color(1.0, 0.95, 0.6, 1.0))
-	g.set_color(1, Color(1.0, 0.3, 0.05, 0.0))
-	flame.color_ramp = g
-	flame.color = Color.WHITE
-	for i in 6:
-		var b := _make(24, 0.6, Color.WHITE)
-		b.one_shot = true
-		b.explosiveness = 1.0
-		b.emitting = false
-		b.spread = 180
-		b.initial_velocity_min = 60
-		b.initial_velocity_max = 220
-		b.gravity = Vector2(0, 260)
-		b.scale_amount_min = 0.25
-		b.scale_amount_max = 0.6
-		_burst_pool.append(b)
+	sparks = _make(160, 0.6, Color.WHITE)
+	sparks.initial_velocity_min = 60
+	sparks.initial_velocity_max = 220
+	sparks.gravity = Vector2(0, 260)
+	sparks.scale_amount_min = 0.25
+	sparks.scale_amount_max = 0.6
 
 
-func _make(amount: int, life: float, c: Color) -> CPUParticles2D:
-	var p := CPUParticles2D.new()
+func _make(amount: int, life: float, c: Color) -> SimpleParticles:
+	var p := SimpleParticles.new()
 	p.amount = amount
 	p.lifetime = life
 	p.texture = soft_tex()
 	p.color = c
-	p.emitting = false
-	p.local_coords = false
-	var fade := Gradient.new()
-	fade.set_color(0, c)
-	fade.set_color(1, Color(c, 0.0))
-	p.color_ramp = fade
+	p.end_color = Color(c, 0.0)
 	add_child(p)
 	return p
 
 
 func burst(pos: Vector2, c: Color, amount := 18) -> void:
-	var b := _burst_pool[_bi]
-	_bi = (_bi + 1) % _burst_pool.size()
-	b.global_position = pos
-	b.amount = amount
-	b.color = c
-	var fade := Gradient.new()
-	fade.set_color(0, c)
-	fade.set_color(1, Color(c, 0.0))
-	b.color_ramp = fade
-	b.restart()
-	b.emitting = true
+	sparks.color = c
+	sparks.end_color = Color(c, 0.0)
+	sparks.burst(pos, amount)

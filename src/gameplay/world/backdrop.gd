@@ -9,7 +9,7 @@ var env: Dictionary
 var vis: Dictionary
 var quality := "high"
 var _sky_layer: CanvasLayer
-var _weather: CPUParticles2D
+var _weather: SimpleParticles
 
 
 func setup(environment: Dictionary, world: Node2D, q := "high") -> void:
@@ -276,11 +276,9 @@ func _build_weather() -> void:
 	var layer := CanvasLayer.new()
 	layer.layer = -1
 	add_child(layer)
-	var p := CPUParticles2D.new()
+	var p := SimpleParticles.new()
 	p.position = Vector2(700, -20)
-	p.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
 	p.emission_rect_extents = Vector2(1100, 10)
-	p.local_coords = false
 	match kind:
 		"snow":
 			p.amount = 140
@@ -290,9 +288,10 @@ func _build_weather() -> void:
 			p.gravity = Vector2(-10, 40)
 			p.initial_velocity_min = 30
 			p.initial_velocity_max = 70
-			p.scale_amount_min = 2.0
-			p.scale_amount_max = 4.5
+			p.scale_amount_min = 1.2
+			p.scale_amount_max = 2.6
 			p.color = Color(1, 1, 1, 0.9)
+			p.end_color = Color(1, 1, 1, 0.6)
 		"dust":
 			p.amount = 50
 			p.lifetime = 6.0
@@ -303,9 +302,10 @@ func _build_weather() -> void:
 			p.gravity = Vector2(0, 5)
 			p.initial_velocity_min = 140
 			p.initial_velocity_max = 260
-			p.scale_amount_min = 2.0
-			p.scale_amount_max = 5.0
+			p.scale_amount_min = 1.2
+			p.scale_amount_max = 3.0
 			p.color = Color(0.95, 0.85, 0.65, 0.35)
+			p.end_color = Color(0.95, 0.85, 0.65, 0.0)
 		"leaves":
 			p.amount = 28
 			p.lifetime = 8.0
@@ -314,12 +314,12 @@ func _build_weather() -> void:
 			p.gravity = Vector2(-15, 25)
 			p.initial_velocity_min = 20
 			p.initial_velocity_max = 60
-			p.angular_velocity_min = -120
-			p.angular_velocity_max = 120
+			p.spin = 2.0
 			p.scale_amount_min = 4.0
 			p.scale_amount_max = 7.0
 			p.color = Color("d9a441")
-	p.preprocess = p.lifetime
+			p.end_color = Color(0.85, 0.64, 0.25, 0.4)
 	p.emitting = true
 	layer.add_child(p)
+	p.prewarm(p.lifetime)
 	_weather = p

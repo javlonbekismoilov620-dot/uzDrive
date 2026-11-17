@@ -79,3 +79,11 @@ xvfb-run -a -s "-screen 0 2688x1242x24" godot --path . --rendering-driver opengl
 - [ ] Content rating questionnaires done; data-safety/app-privacy = no data collected
 - [ ] Version bumped with `tools/bump_version.py`
 - [ ] Legal review of vehicle names/designs (original fictional names; no manufacturer logos; `inspired_by` never displayed)
+
+## Web demo (HTML5)
+A playable browser build runs on iPhone Safari (iOS 16.4+), Android Chrome and desktop browsers.
+```
+godot --headless --path . --export-release "Web" build/web/uzdrive.html     # single-threaded build: no special server headers needed
+python3 tools/web/build_demo.py build/web build/web-demo                  # ~12.6 MB download (engine gzip-compressed)
+```
+`build/web-demo/` is a static site: upload it to any HTTPS host (itch.io, GitHub Pages, Netlify, Cloudflare Pages) and rename `index.full.html` to `index.html`. `index.html` is the variant for hosts that add their own page skeleton (used for the claude.ai demo). The loader shows download progress, decompresses the engine in the browser (`DecompressionStream`, with a pako fallback for older Safari), asks for a tap before starting (required for sound on iOS), keeps the canvas inside the notch safe area and asks players to rotate to landscape. Progress is saved in the browser (IndexedDB).

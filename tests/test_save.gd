@@ -73,3 +73,19 @@ func test_cloud_snapshot_validation() -> void:
 	var a := {"wallet": {"coins_earned": 10}, "stats": {"total_distance": 5}, "updated_at": 1}
 	var b := {"wallet": {"coins_earned": 500}, "stats": {"total_distance": 900}, "updated_at": 0}
 	eq(Services.resolve_conflict(a, b), b, "conflict resolution keeps the more progressed save")
+
+
+func test_newest_valid_candidate_wins() -> void:
+	fresh_profile()
+	var save = tree.root.get_node("/root/Save")
+	var prof = tree.root.get_node("/root/Profile")
+	prof.data.wallet.coins = 100
+	save.write(prof.data)
+	# a newer verified temp file (closed before the rename was persisted)
+	prof.data.wallet.coins = 250
+	var env: Dictionary = save.make_envelope(prof.data)
+	env.saved_at = int(env.saved_at) + 60
+	var f := FileAccess.open(save.tmp_path(), FileAccess.WRITE)
+	f.store_string(JSON.stringify(env, "", true, true))
+	f.close()
+	eq(int(save.read().wallet.coins), 250, "newer valid temp file preferred over older main")

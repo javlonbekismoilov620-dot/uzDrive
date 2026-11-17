@@ -45,14 +45,20 @@ func bak_path() -> String:
 
 
 ## Returns the newest valid payload, or {} when there is no usable save.
+## All candidates are checked and the most recent valid one wins: a verified
+## temp file can be newer than the main file if the app (or a browser tab)
+## closed between writing and renaming.
 func read() -> Dictionary:
+	var best := {}
+	last_load_source = ""
 	for p in [main_path(), tmp_path(), bak_path()]:
 		var env := _read_envelope(p)
-		if not env.is_empty():
+		if env.is_empty():
+			continue
+		if best.is_empty() or int(env.get("saved_at", 0)) > int(best.get("saved_at", 0)):
+			best = env
 			last_load_source = p
-			return env.data
-	last_load_source = ""
-	return {}
+	return best.data if not best.is_empty() else {}
 
 
 func _read_envelope(p: String) -> Dictionary:
@@ -124,6 +130,13 @@ func write(data: Dictionary) -> bool:
 	if err != OK:
 		save_failed.emit("rename: %d" % err)
 		return false
+	if OS.has_feature("web"):
+		# The web build persists user:// to IndexedDB when a file opened for
+		# writing is closed; touch a marker so the rename is persisted too.
+		var m := FileAccess.open(dir.path_join(".sync"), FileAccess.WRITE)
+		if m:
+			m.store_8(1)
+			m.close()
 	saved.emit()
 	return true
 

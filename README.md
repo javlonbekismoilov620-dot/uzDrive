@@ -29,6 +29,8 @@ Drive 61 original vehicles across 8 hand-tuned environments, collect coins and f
    ```
    Desktop keys: →/D gas, ←/A brake, Space boost, Esc pause.
 
+Browser demo: `godot --headless --path . --export-release "Web" build/web/uzdrive.html && python3 tools/web/build_demo.py` (see docs/RELEASE.md → Web demo).
+
 ## Test it
 ```
 godot --headless --path . --import
